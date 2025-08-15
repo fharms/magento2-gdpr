@@ -28,7 +28,7 @@ final class CsvRenderer extends AbstractRenderer
         foreach ($data as $key => $value) {
             $csv .= is_array($value)
                 ? $key . ',' . rtrim($this->render($value), ',') . PHP_EOL
-                : '"' . str_replace('"', '""', $value) . '",';
+                : '"' . str_replace('"', '""', $value ?? '') . '",';
         }
 
         return $csv;
