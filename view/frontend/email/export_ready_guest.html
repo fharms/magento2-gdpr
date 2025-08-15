@@ -4,7 +4,7 @@
  * See LICENSE bundled with this library for license details.
  */
 -->
-<!--@subject {{trans "Export your %store_name information" store_name=$store.getFrontendName()}} @-->
+<!--@subject {{trans "Your personal data export from %store_name is ready for download" store_name=$store.getFrontendName()}} @-->
 <!--@vars {
 "var customer_data.customer_name":"Guest Customer Name"
 } @-->
@@ -18,8 +18,8 @@
     </tr>
     <tr class="email-summary">
         <td>
-            <p>{{trans "We have received a request to export the information associated with your account at %store_name." store_name=$store.getFrontendName()}}</p>
-            <p>{{trans "The export of you personal data is ready. The action is now available in your account."}}</p>
+            <p>{{trans "You recently requested an export of the information associated with your purchases at %store_name." store_name=$store.getFrontendName()}}</p>
+            <p>{{trans 'Your personal data export is now ready. You can securely access and download it by visiting our <a href="%store_url sales/guest/form/">guest order lookup page</a>.' store_url=$store_url |raw}}</p>
         </td>
     </tr>
     <tr class="help-info">

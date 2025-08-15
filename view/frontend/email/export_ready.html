@@ -4,7 +4,7 @@
  * See LICENSE bundled with this library for license details.
  */
 -->
-<!--@subject {{trans "Export your %store_name information" store_name=$store.getFrontendName()}} @-->
+<!--@subject {{trans "Your personal data export from %store_name is ready for download" store_name=$store.getFrontendName()}} @-->
 <!--@vars {
 "var customer_data.customer_name":"Customer Name"
 } @-->
@@ -18,13 +18,13 @@
     </tr>
     <tr class="email-summary">
         <td>
-            <p>{{trans "We have received a request to export the information associated with your account at %store_name." store_name=$store.getFrontendName()}}</p>
-            <p>{{trans "The export of you personal data is ready. The action is now available in your account."}}</p>
+            <p>{{trans "You recently requested an export of the information linked to your account at %store_name." store_name=$store.getFrontendName()}}</p>
+            <p>{{trans "Your personal data export is now ready and can be securely downloaded from your account."}}</p>
         </td>
     </tr>
     <tr class="help-info">
         <td>
-            <p>{{trans 'If you have not authorized this action, please contact us immediately at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}.</p>
+            <p>{{trans 'If you did not request this export, please contact us immediately at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}.</p>
         </td>
     </tr>
 </table>
