@@ -9,10 +9,14 @@ namespace Opengento\Gdpr\Cron;
 
 use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\Area;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Opengento\Gdpr\Api\Data\ExportEntityInterface;
 use Opengento\Gdpr\Api\ExportEntityManagementInterface;
 use Opengento\Gdpr\Api\ExportEntityRepositoryInterface;
+use Opengento\Gdpr\Model\Action\ActionFactory;
+use Opengento\Gdpr\Model\Action\ContextBuilder;
+use Opengento\Gdpr\Model\Action\Export\ArgumentReader;
 use Opengento\Gdpr\Model\Config;
 use Psr\Log\LoggerInterface;
 
@@ -30,19 +34,27 @@ final class ExportEntity
     private ExportEntityManagementInterface $exportManagement;
 
     private SearchCriteriaBuilder $criteriaBuilder;
+    
+    private ActionFactory $actionFactory;
+    
+    private ContextBuilder $contextBuilder;
 
     public function __construct(
         LoggerInterface $logger,
         Config $config,
         ExportEntityRepositoryInterface $exportRepository,
         ExportEntityManagementInterface $exportManagement,
-        SearchCriteriaBuilder $criteriaBuilder
+        SearchCriteriaBuilder $criteriaBuilder,
+        ActionFactory $actionFactory,
+        ContextBuilder $contextBuilder
     ) {
         $this->logger = $logger;
         $this->config = $config;
         $this->exportRepository = $exportRepository;
         $this->exportManagement = $exportManagement;
         $this->criteriaBuilder = $criteriaBuilder;
+        $this->actionFactory = $actionFactory;
+        $this->contextBuilder = $contextBuilder;
     }
 
     public function execute(): void
@@ -56,7 +68,18 @@ final class ExportEntity
 
                 foreach ($exportList->getItems() as $exportEntity) {
                     try {
-                        $this->exportManagement->export($exportEntity);
+                        // Use the action system to export and send notification
+                        $action = $this->actionFactory->get('export_execute');
+                        $actionContext = $this->contextBuilder
+                            ->setPerformedFrom(Area::AREA_CRONTAB)
+                            ->setPerformedBy('cron')
+                            ->setParameters([
+                                ArgumentReader::EXPORT_ENTITY => $exportEntity,
+                                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $exportEntity->getEntityType(),
+                                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $exportEntity->getEntityId()
+                            ])
+                            ->create();
+                        $action->execute($actionContext);
                     } catch (NoSuchEntityException $e) {
                         $this->logger->error($e->getLogMessage(), $e->getTrace());
                         $this->exportRepository->delete($exportEntity);
