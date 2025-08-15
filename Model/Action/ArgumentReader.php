@@ -21,6 +21,8 @@ final class ArgumentReader
 
     public static function getEntityId(ActionContextInterface $actionContext): ?int
     {
-        return $actionContext->getParameters()[self::ENTITY_ID] ?? null;
+        $entityId = $actionContext->getParameters()[self::ENTITY_ID] ?? null;
+        
+        return $entityId !== null ? (int) $entityId : null;
     }
 }
