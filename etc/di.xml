@@ -132,8 +132,8 @@
         <arguments>
             <argument name="type" xsi:type="string">erase_execute</argument>
             <argument name="actions" xsi:type="array">
-                <item name="action" xsi:type="object">Opengento\Gdpr\Model\Action\Erase\ExecuteAction</item>
                 <item name="notifier" xsi:type="object">Opengento\Gdpr\Model\Action\Erase\ExecuteNotifier</item>
+                <item name="action" xsi:type="object">Opengento\Gdpr\Model\Action\Erase\ExecuteAction</item>
             </argument>
         </arguments>
     </virtualType>

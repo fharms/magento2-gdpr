@@ -11,6 +11,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\SessionCleanerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Opengento\Gdpr\Model\Customer\OrigDataRegistry;
 use Opengento\Gdpr\Service\Erase\ProcessorInterface;
 
 final class CustomerDataProcessor implements ProcessorInterface
@@ -25,12 +26,19 @@ final class CustomerDataProcessor implements ProcessorInterface
      */
     private SessionCleanerInterface $sessionCleaner;
 
+    /**
+     * @var OrigDataRegistry
+     */
+    private OrigDataRegistry $origDataRegistry;
+
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
-        SessionCleanerInterface $sessionCleaner
+        SessionCleanerInterface $sessionCleaner,
+        OrigDataRegistry $origDataRegistry
     ) {
         $this->customerRepository = $customerRepository;
         $this->sessionCleaner = $sessionCleaner;
+        $this->origDataRegistry = $origDataRegistry;
     }
 
     /**
@@ -39,14 +47,29 @@ final class CustomerDataProcessor implements ProcessorInterface
      */
     public function execute(int $customerId): bool
     {
+        $this->storeOriginalCustomerData($customerId);
         $this->sessionCleaner->clearFor($customerId);
+        $this->deleteCustomer($customerId);
 
+        return true;
+    }
+
+    private function storeOriginalCustomerData(int $customerId): void
+    {
+        try {
+            $customer = $this->customerRepository->getById($customerId);
+            $this->origDataRegistry->set(clone $customer);
+        } catch (NoSuchEntityException $e) {
+            // Customer already deleted, nothing to store
+        }
+    }
+
+    private function deleteCustomer(int $customerId): void
+    {
         try {
             $this->customerRepository->deleteById($customerId);
         } catch (NoSuchEntityException $e) {
-            /** Silence is golden */
+            // Customer already deleted, nothing to do
         }
-
-        return true;
     }
 }

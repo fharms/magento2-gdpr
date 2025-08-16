@@ -34,8 +34,12 @@ final class ExecuteAction extends AbstractAction
             throw InputException::requiredField('entity');
         }
 
-        return $this->createActionResult(
-            [ArgumentReader::ERASE_ENTITY => $this->eraseManagement->process($eraseEntity)]
-        );
+        $processedEntity = $this->eraseManagement->process($eraseEntity);
+        
+        return $this->createActionResult([
+            ArgumentReader::ERASE_ENTITY => $processedEntity,
+            \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $processedEntity->getEntityType(),
+            \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $processedEntity->getEntityId()
+        ]);
     }
 }

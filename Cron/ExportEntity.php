@@ -34,9 +34,9 @@ final class ExportEntity
     private ExportEntityManagementInterface $exportManagement;
 
     private SearchCriteriaBuilder $criteriaBuilder;
-    
+
     private ActionFactory $actionFactory;
-    
+
     private ContextBuilder $contextBuilder;
 
     public function __construct(
@@ -68,26 +68,33 @@ final class ExportEntity
 
                 foreach ($exportList->getItems() as $exportEntity) {
                     try {
-                        // Use the action system to export and send notification
-                        $action = $this->actionFactory->get('export_execute');
-                        $actionContext = $this->contextBuilder
-                            ->setPerformedFrom(Area::AREA_CRONTAB)
-                            ->setPerformedBy('cron')
-                            ->setParameters([
-                                ArgumentReader::EXPORT_ENTITY => $exportEntity,
-                                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $exportEntity->getEntityType(),
-                                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $exportEntity->getEntityId()
-                            ])
-                            ->create();
-                        $action->execute($actionContext);
+                        $this->processExportEntity($exportEntity);
                     } catch (NoSuchEntityException $e) {
                         $this->logger->error($e->getLogMessage(), $e->getTrace());
                         $this->exportRepository->delete($exportEntity);
+                    } catch (Exception $e) {
+                        $this->logger->error($e->getMessage(), $e->getTrace());
                     }
                 }
             } catch (Exception $e) {
                 $this->logger->critical($e->getMessage(), $e->getTrace());
             }
         }
+    }
+
+    private function processExportEntity(ExportEntityInterface $exportEntity): void
+    {
+        $action = $this->actionFactory->get('export_execute');
+        $actionContext = $this->contextBuilder
+            ->setPerformedFrom(Area::AREA_CRONTAB)
+            ->setPerformedBy('cron')
+            ->setParameters([
+                ArgumentReader::EXPORT_ENTITY => $exportEntity,
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $exportEntity->getEntityType(),
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $exportEntity->getEntityId()
+            ])
+            ->create();
+        
+        $action->execute($actionContext);
     }
 }
