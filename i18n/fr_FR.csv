@@ -68,7 +68,7 @@
 "We have received a request to cancel the erasure of the information associated with your account at %store_name.","Nous avons reçus une demande d'annulation pour l'effacement de vos données associés à votre compte sur %store_name."
 "We have received a request to export the information associated with your account at %store_name.","We have received a request to export the information associated with your account at %store_name."
 "If you did not request this export, please contact us immediately at <a href=""mailto:%store_email"">%store_email</a>","Si vous n'avez pas autorisé cette action, veuillez nous contacter immédiatement à <a href=""mailto:%store_email"">%store_email</a>"
-"Erase your %store_name information","Effacer vos données de %store_name"
+"We have received a request to erase your %store_name information","Effacer vos données de %store_name"
 "We have received a request to erase the information associated with your account at %store_name.","Nous avons reçus une demande d'oubli de données personnelles."
 "You can cancel the erase within %delay hours by <a href=""%account_url"">logging into your account</a>.","Vous pouvez annuler la demande de suppression sous %delay heures en vous <a href=""%account_url"">connectant à votre compte</a>."
 "Erasure of your %store_name information","Supression de vos données de %store_name"

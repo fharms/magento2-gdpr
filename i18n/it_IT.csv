@@ -65,7 +65,7 @@
 "We have received a request to export the information associated with your account at %store_name.","We have received a request to export the information associated with your account at %store_name."
 "If you did not request this export, please contact us immediately at <a href=""mailto:%store_email"">%store_email</a>","Se non hai autorizzato questa azione, contattaci immediatamente su <a href=""mailto:%store_email"">%store_email</a>"
 "Thanks,<br>%store_name","Grazie, %store_name"
-"Erase your %store_name information","Elimina i tuoi dati da %store_name"
+"We have received a request to erase your %store_name information","Elimina i tuoi dati da %store_name"
 "We have received a request to erase the information associated with your account at %store_name.","Abbiamo ricevuto una richiesta di cancellazione delle informazioni associate al tuo account su %store_name."
 "You can cancel the erase whitin %delay hours by <a href=""%account_url"">logging into your account</a>.","Puoi cancellare l'eliminazione entro %delay ore <a href=""%account_url"">entrando sul tuo account</a>."
 "Erasure of your %store_name information","Elimina i tuoi dati da %store_name"

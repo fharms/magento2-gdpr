@@ -68,7 +68,7 @@
 "We have received a request to cancel the erasure of the information associated with your account at %store_name.","We hebben een verzoek ontvangen om de verwijdering van de informatie gekoppeld an uw %store_name account te annuleren."
 "We have received a request to export the information associated with your account at %store_name.","We have received a request to export the information associated with your account at %store_name."
 "If you did not request this export, please contact us immediately at <a href=""mailto:%store_email"">%store_email</a>","Als u deze actie niet heeft geautoriseerd, neem dan onmiddelijk contact met ons op via  <a href=""mailto:%store_email"">%store_email</a>"
-"Erase your %store_name information","Verwijder uw %store_name informatie"
+"We have received a request to erase your %store_name information","Verwijder uw %store_name informatie"
 "We have received a request to erase the information associated with your account at %store_name.","We hebben een verzoek ontvangen de informatie gekoppeld an uw %store_name account te verwijderen."
 "You can cancel the erase within %delay hours by <a href=""%account_url"">logging into your account</a>.","U kunt de verwijdering annuleren binnen %delay uur door <a href=""%account_url"">in uw account in te loggen</a>."
 "Erasure of your %store_name information","Verwijdering van uw %store_name informatie"
