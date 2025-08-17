@@ -12,12 +12,18 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Opengento\Gdpr\Model\Notifier\AbstractMailSender;
 use Psr\Log\LoggerInterface;
 
 final class MailSender extends AbstractMailSender implements SenderInterface
 {
+    /**
+     * @var string
+     */
+    private const CONFIG_PATH_ERASURE_DELAY = 'gdpr/erasure/delay';
+
     /**
      * @var LoggerInterface
      */
@@ -41,6 +47,22 @@ final class MailSender extends AbstractMailSender implements SenderInterface
     }
 
     /**
+     * Get the erasure delay in hours
+     *
+     * @param int|null $storeId
+     * @return int
+     */
+    private function getErasureDelayInHours(?int $storeId = null): int
+    {
+        $delayInMinutes = (int) $this->scopeConfig->getValue(
+            self::CONFIG_PATH_ERASURE_DELAY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        return (int) ceil($delayInMinutes / 60);
+    }
+
+    /**
      * @inheritdoc
      * @throws LocalizedException
      * @throws MailException
@@ -55,6 +77,7 @@ final class MailSender extends AbstractMailSender implements SenderInterface
             'customer_data' => [
                 'customer_name' => $order->getCustomerName(),
             ],
+            'delay' => $this->getErasureDelayInHours($storeId),
         ];
 
         try {

@@ -50,7 +50,11 @@ final class ExportAction extends AbstractAction
         }
 
         return $this->createActionResult(
-            [ExportArgumentReader::EXPORT_ENTITY => $exportEntity]
+            [
+                ExportArgumentReader::EXPORT_ENTITY => $exportEntity,
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $exportEntity->getEntityType(),
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $exportEntity->getEntityId()
+            ]
         );
     }
 }

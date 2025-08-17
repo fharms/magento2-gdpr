@@ -9,7 +9,10 @@ namespace Opengento\Gdpr\Cron;
 
 use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SearchResults;
 use Magento\Framework\Api\SearchResultsInterface;
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -17,6 +20,9 @@ use Opengento\Gdpr\Api\Data\EraseEntityInterface;
 use Opengento\Gdpr\Api\Data\EraseEntitySearchResultsInterface;
 use Opengento\Gdpr\Api\EraseEntityManagementInterface;
 use Opengento\Gdpr\Api\EraseEntityRepositoryInterface;
+use Opengento\Gdpr\Model\Action\ActionFactory;
+use Opengento\Gdpr\Model\Action\ContextBuilder;
+use Opengento\Gdpr\Model\Action\Erase\ArgumentReader;
 use Opengento\Gdpr\Model\Config;
 use Psr\Log\LoggerInterface;
 
@@ -37,10 +43,13 @@ final class EraseEntity
 
     private SearchCriteriaBuilder $criteriaBuilder;
 
-    /**
-     * @var DateTime
-     */
     private DateTime $dateTime;
+
+    private ActionFactory $actionFactory;
+
+    private ContextBuilder $contextBuilder;
+
+    private State $appState;
 
     public function __construct(
         LoggerInterface $logger,
@@ -49,7 +58,10 @@ final class EraseEntity
         EraseEntityManagementInterface $eraseManagement,
         EraseEntityRepositoryInterface $eraseRepository,
         SearchCriteriaBuilder $criteriaBuilder,
-        DateTime $dateTime
+        DateTime $dateTime,
+        ActionFactory $actionFactory,
+        ContextBuilder $contextBuilder,
+        State $appState
     ) {
         $this->logger = $logger;
         $this->config = $config;
@@ -58,17 +70,27 @@ final class EraseEntity
         $this->eraseRepository = $eraseRepository;
         $this->criteriaBuilder = $criteriaBuilder;
         $this->dateTime = $dateTime;
+        $this->actionFactory = $actionFactory;
+        $this->contextBuilder = $contextBuilder;
+        $this->appState = $appState;
     }
 
     public function execute(): void
     {
         if ($this->config->isModuleEnabled() && $this->config->isErasureEnabled()) {
+            // Set area code for email template processing
+            try {
+                $this->appState->setAreaCode(Area::AREA_FRONTEND);
+            } catch (LocalizedException $e) {
+                // Area already set, continue processing
+            }
+
             $oldValue = $this->registry->registry('isSecureArea');
             $this->registry->register('isSecureArea', true, true);
 
             foreach ($this->retrieveEraseEntityList()->getItems() as $eraseEntity) {
                 try {
-                    $this->eraseManagement->process($eraseEntity);
+                    $this->processEraseEntity($eraseEntity);
                 } catch (Exception $e) {
                     $this->logger->error($e->getMessage(), $e->getTrace());
                 }
@@ -76,6 +98,22 @@ final class EraseEntity
 
             $this->registry->register('isSecureArea', $oldValue, true);
         }
+    }
+
+    private function processEraseEntity(EraseEntityInterface $eraseEntity): void
+    {
+        $action = $this->actionFactory->get('erase_execute');
+        $actionContext = $this->contextBuilder
+            ->setPerformedFrom(Area::AREA_CRONTAB)
+            ->setPerformedBy('cron')
+            ->setParameters([
+                ArgumentReader::ERASE_ENTITY => $eraseEntity,
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_TYPE => $eraseEntity->getEntityType(),
+                \Opengento\Gdpr\Model\Action\ArgumentReader::ENTITY_ID => $eraseEntity->getEntityId()
+            ])
+            ->create();
+        
+        $action->execute($actionContext);
     }
 
     /**
@@ -100,11 +138,12 @@ final class EraseEntity
         );
 
         try {
-            $eraseCustomerList = $this->eraseRepository->getList($this->criteriaBuilder->create());
+            return $this->eraseRepository->getList($this->criteriaBuilder->create());
         } catch (LocalizedException $e) {
-            $eraseCustomerList = [];
+            $this->logger->error('Failed to retrieve erase entity list: ' . $e->getMessage());
+            $searchResults = new SearchResults();
+            $searchResults->setItems([]);
+            return $searchResults;
         }
-
-        return $eraseCustomerList;
     }
 }
